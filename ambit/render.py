@@ -241,7 +241,9 @@ class Display(object):
             self.shutdown_event = shutdown_event
         else:
             self.shutdown_event = threading.Event()
-        self.thread = threading.Thread(target=self.worker)
+        self.thread = None
+        self.open_complete = threading.Event()
+        self.open_exception = None
 
     def open(self):
         pygame.display.init()
@@ -351,10 +353,26 @@ class Display(object):
                 callback(event)
 
     def run(self):
-        self.open()
+        if self.thread and self.thread.is_alive():
+            return
+        self.open_complete.clear()
+        self.open_exception = None
+        self.thread = threading.Thread(target=self.worker)
+        self.thread.daemon = True
         self.thread.start()
+        self.open_complete.wait()
+        if self.open_exception:
+            raise self.open_exception
 
     def worker(self):
+        try:
+            self.open()
+        except Exception as err:
+            self.open_exception = err
+            raise
+        finally:
+            self.open_complete.set()
+
         self.tick_count = 0
         while not self.shutdown_event.is_set():
             self.tick()

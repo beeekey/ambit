@@ -1,0 +1,10 @@
+[Unit]
+Description=ydotool daemon (system)
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/ydotoold --socket-path /tmp/.ydotool_socket
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

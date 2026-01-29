@@ -29,7 +29,7 @@ numpy==1.21.5; python_version >= "3.7" and python_version < "3.11" \
     --hash=sha256:1964db2d4a00348b7a60ee9d013c8cb0c566644a589eaa80995126eac3b99ced \
     --hash=sha256:a7c4b701ca418cd39e28ec3b496e6388fe06de83f5f0cb74794fa31cfa384c02 \
     --hash=sha256:6a5928bc6241264dce5ed509e66f33676fc97f464e7a919edc672fb5532221ee
-pygame==2.1.2; python_version >= "3.6" \
+pygame==2.1.2; python_version < "3.12" \
     --hash=sha256:f149e182d0eeef15d8a9b4c9dad1b87dc6eba3a99bd3c44a777a3a2b053a3dca \
     --hash=sha256:dc4444d61d48c5546df5137cdf81554887ddb6e2ef1be7f51eb77ea3b6bdd56f \
     --hash=sha256:a0ccf8e3dce7ca67d523a6020b7e3dbf4b26797a9a8db5cc4c7b5ef20fb64701 \
@@ -88,6 +88,8 @@ pygame==2.1.2; python_version >= "3.6" \
     --hash=sha256:7fdb93b4282962c9a2ebf1af994ee698be823dd913218ed97a5f2fb372b10b66 \
     --hash=sha256:1fddec8829e96424800c806582d73a5173b7d48946cccf7d035839ca09850db8 \
     --hash=sha256:d6d0eca28f886f0477cd0721ac688189155a587f2bb8eae740e52ca56c3ad23c
+pygame-ce==2.5.6; python_version >= "3.12" \
+    --hash=sha256:6ed8163e389d5dfcf7817458792c4eaeb96a50393d63a9c4d3384eb2b8944123
 pyusb==1.2.1; python_full_version >= "3.6.0" \
     --hash=sha256:2b4c7cb86dbadf044dfb9d3a4ff69fd217013dbe78a792177a3feb172449ea36 \
     --hash=sha256:a4cc7404a203144754164b8b40994e2849fde1cfff06b08492f12fff9d9de7b9

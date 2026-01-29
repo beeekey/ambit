@@ -95,6 +95,8 @@ run the graphical simulator:
 $ ambit_simulator --verbose
 ```
 
+If you are running on Python 3.12 or newer, install `pygame-ce==2.5.6` (the community-maintained drop-in fork) instead of upstream `pygame` before launching the simulator so that you get ready-made wheels for modern interpreters.
+
 For detailed simulator instructions see [#simulator](#simulator).
 
 If you have completed the steps in [#hardware](#hardware), you can
@@ -207,6 +209,93 @@ See [docs/CONFIG.md](docs/CONFIG.md) for the complete config reference.
 
 ambit can be launched with an ~unlimited number of configuration profiles. 
 To switch between profiles, you will need to configure appropriate bindings.
+
+#### Wayland (GNOME) window routing
+
+On GNOME Wayland, the `activate-window-by-title@lucaswerkmeister.de`
+extension can be used to activate an existing window via D-Bus, and
+`executeCommand` can route actions at runtime.
+
+Helper script:
+
+```
+tools/ambit_gnome_dispatch.sh
+```
+
+The dispatch script uses `ydotool` (preferred) or `wtype` for key injection
+on GNOME Wayland. `ydotool` requires the `ydotoold` daemon and uinput
+permissions (input/uinput groups).
+
+To keep `ydotoold` running, you can use a simple systemd user service.
+Create `~/.config/systemd/user/ydotoold.service`:
+
+```
+[Unit]
+Description=ydotool daemon
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/ydotoold
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+```
+
+Then enable it:
+
+```
+systemctl --user daemon-reload
+systemctl --user enable --now ydotoold.service
+```
+
+If key injection still fails on Wayland, use a system service (root).
+The default socket is `/tmp/.ydotool_socket`:
+
+```
+sudo cp tools/ydotoold-system.service /etc/systemd/system/ydotoold.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now ydotoold.service
+```
+
+The script activates Chromium via the activate-window-by-title D-Bus API.
+Because the extension does not expose the current focused window, a
+double-tap within `AMBIT_DOUBLE_TAP_WINDOW` seconds triggers hard refresh.
+Double-tap sends the refresh keys without re-activating the window to avoid
+stealing focus.
+
+Verify the D-Bus interface:
+
+```
+gdbus call --session \
+  --dest de.lucaswerkmeister.ActivateWindowByTitle \
+  --object-path /de/lucaswerkmeister/ActivateWindowByTitle \
+  --method de.lucaswerkmeister.ActivateWindowByTitle.activateByWmClass Chromium
+```
+
+If hard refresh does not fire, increase the delay or change the refresh mode.
+By default, the script uses `ydotool key ctrl+shift+r`. Set
+`AMBIT_REFRESH_MODE=key` to use keycodes or `AMBIT_REFRESH_MODE=type` to
+hold Ctrl+Shift and type "r".
+
+```
+AMBIT_REFRESH_MODE=type AMBIT_FOCUS_DELAY=0.6 AMBIT_KEY_DELAY=30 AMBIT_REFRESH_DELAY=0.05 make gui AMBIT_FLAGS="ambit/resources/layouts/custom/00-default.plp"
+AMBIT_REFRESH_MODE=key AMBIT_FOCUS_DELAY=0.6 AMBIT_KEY_DELAY=30 AMBIT_REFRESH_DELAY=0.05 AMBIT_REFRESH_KEYCODES="29:1 42:1 19:1 19:0 42:0 29:0" make gui AMBIT_FLAGS="ambit/resources/layouts/custom/00-default.plp"
+```
+
+Example `actionMap` snippet:
+
+```
+"[slot=(1,0)]": {
+  "pressed": {
+    "action": "executeCommand",
+    "argv": ["/bin/bash", "-lc", "/path/to/ambit/tools/ambit_gnome_dispatch.sh %AMBIT_VALUE%"]
+  }
+}
+```
+
+Run `tools/ambit_gnome_active_window.sh` in a terminal to see the values
+for `app_id`, `wm_class`, and `title`, then edit the dispatch script to match.
 
 ### Demos
 
@@ -471,4 +560,3 @@ $ ambit_image_display ambit/resources/assets/23.raw
 
 Reference configuration from PaletteApp is in
 [ambit/resources/layouts/reference/](ambit/resources/layouts/reference/).
-

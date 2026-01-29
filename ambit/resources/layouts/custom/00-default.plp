@@ -1,0 +1,18 @@
+{
+  "app_version": "2.6.4",
+  "midiChannel": -1,
+  "module_mappings": {
+    "actionMap": {
+      "[slot=(0,-2)]": {
+        "pressed": {
+          "action": "executeCommand",
+          "argv": ["/bin/bash", "-lc", "/mnt/xtreme/DV/DEVBK/ambit/tools/ambit_gnome_dispatch.sh %AMBIT_VALUE%"]
+        }
+      }
+    }
+  },
+  "orientation": 0,
+  "tabType": "Palette",
+  "tabUuid": "{3e4c3daa-757c-41a7-ba41-b9e70d451141}",
+  "title": "CUSTOM"
+}
